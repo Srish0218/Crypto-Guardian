@@ -92,7 +92,7 @@ def visualizer(hash_functions, hash_lengths):
             fig_heatmap.update_layout(title='Hash Collision Likelihood')
             st.plotly_chart(fig_heatmap)
 
-    st.markdown("#### Hash Digests")
+    st.markdown(" Hash Digests")
 
     col1, col2 = st.columns(2)
 
@@ -120,28 +120,60 @@ def visualizer(hash_functions, hash_lengths):
 
 
 def results_for_uploading_file(input_data, hash_functions, hash_lengths):
+    with st.status("Generating...", expanded=True) as status2:
+        st.write("Hashing from file...")
+        time.sleep(1.5)
+        st.write("Visualizing...")
+        time.sleep(2)
+        st.write("Hash Digest Values...")
+        time.sleep(1.5)
+        status2.update(label="Completed!!!", state="complete", expanded=False)
     st.markdown("#### Hash and Digest Values: ")
-
     # Hash function selection
-    for algo in hash_functions:
-        with st.expander(algo):
-            hash_obj = calculate_hash(algo, input_data)
-            hashed_value = hash_obj.hexdigest()
-            st.write(f"{algo} Hex Hash:")
-            st.info(hashed_value)
+    col1, col2 = st.columns(2)
+    with col1:
+        for algo in hash_functions[:5]:
+            with st.expander(algo):
+                hash_obj = calculate_hash(algo, input_data)  # Fix: use 'data' instead of 'input_data'
+                hashed_value = hash_obj.hexdigest()
+                st.write(f"{algo} Hex Hash:")
+                st.info(hashed_value)
+                try:
+                    # Attempt to use the digest() method for algorithms that support it
+                    hash_digest = hash_obj.digest()
+                    st.write(f"{algo} Digest: ")
+                    st.info(hash_digest)
+                except AttributeError:
+                    # For algorithms that don't support digest(), display a warning
+                    st.warning(f"{algo} Digest: Not supported!!!")
+    with col2:
+        for algo in hash_functions[5:]:
+            with st.expander(algo):
+                hash_obj = calculate_hash(algo, input_data)  # Fix: use 'data' instead of 'input_data'
+                hashed_value = hash_obj.hexdigest()
+                st.write(f"{algo} Hex Hash:")
+                st.info(hashed_value)
 
-            try:
-                # Attempt to use the digest() method for algorithms that support it
-                hash_digest = hash_obj.digest()
-                st.write(f"{algo} Digest: ")
-                st.info(hash_digest)
-            except AttributeError:
-                # For algorithms that don't support digest(), display a warning
-                st.warning(f"{algo} Digest: Not supported!!!")
+                try:
+                    # Attempt to use the digest() method for algorithms that support it
+                    hash_digest = hash_obj.digest()
+                    st.write(f"{algo} Digest: ")
+                    st.info(hash_digest)
+                except AttributeError:
+                    # For algorithms that don't support digest(), display a warning
+                    st.warning(f"{algo} Digest: Not supported!!!")
     visualizer(hash_functions, hash_lengths)
 
 
 def results_for_string(data, hash_functions, hash_lengths):
+    with st.status("Generating data...", expanded=True) as status:
+        st.write("Hashing...")
+        time.sleep(1.5)
+        st.write("Visualizing...")
+        time.sleep(2)
+        st.write("Hash Digest Values...")
+        time.sleep(1.5)
+        status.update(label="Completed!!!", state="complete", expanded=False)
     st.markdown("#### Hash and Digest Values: ")
     # Hash function selection
     col1, col2 = st.columns(2)
@@ -355,17 +387,6 @@ if Feature == "Hashing Data":
         input_data = st.text_area("Enter Data:")
         if st.button("Generate Hash"):
             if input_data:
-                # Generate hash results
-                # Display hash results
-                with st.status("Generating data...",expanded=True) as status:
-                    st.write("Hashing...")
-                    time.sleep(1.5)
-                    st.write("Visualizing...")
-                    time.sleep(2)
-                    st.write("Hash Digest Values...")
-                    time.sleep(1.5)
-                    status.update(label="Completed!!!", state="complete", expanded=False)
-
                 results_for_string(input_data, hash_functions, hash_lengths)
             else:
                 st.error("Please enter data before generating hash.")

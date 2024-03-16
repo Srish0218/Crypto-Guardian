@@ -3,6 +3,9 @@ import hashlib
 import plotly.graph_objects as go
 import numpy as np
 import time
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 # Install matplotlib using pip
 
@@ -122,11 +125,11 @@ def visualizer(hash_functions, hash_lengths):
 def results_for_uploading_file(input_data, hash_functions, hash_lengths):
     with st.status("Generating...", expanded=True) as status2:
         st.write("Hashing from file...")
-        time.sleep(1.5)
+        time.sleep(0.5)
         st.write("Visualizing...")
-        time.sleep(2)
+        time.sleep(1)
         st.write("Hash Digest Values...")
-        time.sleep(1.5)
+        time.sleep(0.5)
         status2.update(label="Completed!!!", state="complete", expanded=False)
     st.markdown("#### Hash and Digest Values: ")
     # Hash function selection
@@ -168,11 +171,11 @@ def results_for_uploading_file(input_data, hash_functions, hash_lengths):
 def results_for_string(data, hash_functions, hash_lengths):
     with st.status("Generating data...", expanded=True) as status:
         st.write("Hashing...")
-        time.sleep(1.5)
+        time.sleep(0.5)
         st.write("Visualizing...")
-        time.sleep(2)
+        time.sleep(1)
         st.write("Hash Digest Values...")
-        time.sleep(1.5)
+        time.sleep(0.5)
         status.update(label="Completed!!!", state="complete", expanded=False)
     st.markdown("#### Hash and Digest Values: ")
     # Hash function selection
@@ -404,11 +407,89 @@ elif Feature == "Compare Hashing":
     hash1 = st.text_input("Hash 1:")
     hash2 = st.text_input("Hash 2:")
     if st.button("Compare"):
+        with st.status("Comparing...", expanded=True) as status3:
+            st.write("Checking Integrity...")
+            time.sleep(0.5)
+            st.write("Visualizing...")
+            time.sleep(1)
+            st.write("Comparing Frequency ...")
+            time.sleep(0.5)
+            status3.update(label="Completed!!!", state="complete", expanded=False)
         if hash1 and hash2:
             if hash1 == hash2:
                 st.success("Hashes match! Data integrity is preserved.")
             else:
                 st.error("Hashes do not match! Data integrity may be compromised.")
+
+            # Create a heatmap to visualize the similarity between the two hash values
+            similarity_matrix = np.zeros((len(hash1), len(hash2)))
+            for i in range(len(hash1)):
+                for j in range(len(hash2)):
+                    similarity_matrix[i, j] = 1 if hash1[i] == hash2[j] else 0
+
+            fig = go.Figure(data=go.Heatmap(z=similarity_matrix, colorscale='Viridis'))
+            fig.update_layout(title='Similarity between Hash Values')
+
+            c1, c2 = st.columns(2)
+            with c1:
+                st.plotly_chart(fig)
+            # Display the DataFrame
+            with c2:
+                with st.popover("Get Info!!!"):
+                    st.markdown(
+                        """
+                    <div class="container-with-border2">
+
+
+
+**1.     Heatmap Visualization:** The heatmap provides a graphical representation of the similarity between the 
+characters of two hash values. Each cell in the heatmap represents the comparison between a character from Hash 1 and 
+a character from Hash 2.
+
+**2.   Color Gradient:** The colors in the heatmap represent the level of similarity between characters:
+
+    - Cells with a value of 1 are colored in the darkest shade, indicating an exact match between characters.
+    - Cells with a value of 0 are colored in the lightest shade, indicating no match between characters.
+**3.    Axes:** The heatmap has two axes:
+
+    - The x-axis represents the characters of Hash 2.
+    - The y-axis represents the characters of Hash 1.
+***Possible Outputs:***
+
+**- Perfect Match:** If both hash values are identical, the heatmap will show a diagonal line of dark-colored 
+    cells from the top-left corner to the bottom-right corner. This indicates that each character in Hash 1 matches 
+    the corresponding character in Hash 2.
+
+**- Partial Match:** If some characters match but not all, the heatmap will show dark-colored cells clustered 
+    along the diagonal line, indicating matching characters. The remaining cells will be light-colored, indicating 
+    non-matching characters.
+
+**- No Match:** If none of the characters match between the two hash values, the heatmap will be entirely 
+    light-colored, indicating no similarity between the hash values.
+
+ """, unsafe_allow_html=True
+                    )
+
+            # Create a DataFrame to store the frequency of characters in hash values
+            chars = sorted(set(hash1 + hash2))
+            freq_hash1 = [hash1.count(char) for char in chars]
+            freq_hash2 = [hash2.count(char) for char in chars]
+            df = pd.DataFrame({'Character': chars, 'Hash 1 Frequency': freq_hash1, 'Hash 2 Frequency': freq_hash2})
+            df = df.set_index('Character')
+
+            # Create a heatmap to visualize the frequency of characters
+            plt.figure(figsize=(10, 6))
+            sns.heatmap(df, cmap='viridis', annot=True, fmt='d')
+            plt.title('Character Frequency Comparison')
+            plt.xlabel('Hash Value')
+            plt.ylabel('Character')
+
+            c1, c2 = st.columns(2)
+            with c1:
+                st.pyplot(plt)
+            # Display the DataFrame
+            with c2:
+                st.write(df)
 
 st.markdown("""
     <style>
@@ -416,6 +497,13 @@ st.markdown("""
             padding: 10px;
             width: 100%;
             max-height: 500px; /* Set the maximum height for the container */
+            overflow-y: auto; /* Add vertical scroll if content exceeds the maximum height */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .container-with-border2 {
+            width: 110%;
+            max-height: 450px; /* Set the maximum height for the container */
             overflow-y: auto; /* Add vertical scroll if content exceeds the maximum height */
             border: 1px solid #ddd;
             border-radius: 5px;

@@ -435,7 +435,7 @@ elif Feature == "Compare Hashing":
                 st.plotly_chart(fig)
             # Display the DataFrame
             with c2:
-                with st.popover("Get Info!!!"):
+                with st.expander("Get Info!!!"):
                     st.markdown(
                         """
                     <div class="container-with-border2">
@@ -502,11 +502,18 @@ st.markdown("""
             border-radius: 5px;
         }
         .container-with-border2 {
-            width: 110%;
+            width: 95%;
+            margin: 20px;
+            padding: 30px;
             max-height: 450px; /* Set the maximum height for the container */
             overflow-y: auto; /* Add vertical scroll if content exceeds the maximum height */
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(90%);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur( 4px );
+    -webkit-backdrop-filter: blur( 4px );
+    border: 1px solid rgba( 255, 255, 255, 0.18 );
         }
     </style>
 """, unsafe_allow_html=True)

@@ -39,62 +39,59 @@ def create_pie_chart(labels, sizes):
     fig = go.Figure(data=[go.Pie(labels=labels, values=sizes)])
     fig.update_layout(title='Algorithm Distribution')
     return fig
+
+
 def visualizer(hash_functions, hash_lengths):
     st.markdown("## Visualization")
 
-    c1, c2, c3, c4, c5 = st.columns(5)
+    c1, c2, c3, c4, c5, c6, c7, c8, c9, c10 = st.columns(10)
 
     with c1:
-        st.markdown("#### Hash Lengths")
-        fig_lengths = go.Figure()
-        fig_lengths.add_trace(go.Scatter(x=hash_functions, y=hash_lengths, mode='lines+markers', name='Hash Lengths'))
-        fig_lengths.update_layout(xaxis_title='Hash Function', yaxis_title='Hash Length (bits)',
-                                  title='Hash Algorithm Lengths')
-        st.plotly_chart(fig_lengths)
-
-    with c2:
-        st.markdown("#### Algorithm Distribution")
-        fig_pie = go.Figure(data=[go.Pie(labels=hash_functions, values=hash_lengths)])
-        fig_pie.update_layout(title='Algorithm Distribution')
-        st.plotly_chart(fig_pie)
+        with st.expander("Hash Lengths"):
+            fig_lengths = go.Figure()
+            fig_lengths.add_trace(
+                go.Scatter(x=hash_functions, y=hash_lengths, mode='lines+markers', name='Hash Lengths'))
+            fig_lengths.update_layout(xaxis_title='Hash Function', yaxis_title='Hash Length (bits)',
+                                      title='Hash Algorithm Lengths')
+            st.plotly_chart(fig_lengths)
 
     with c3:
-        st.markdown("Historical Hashing")
-        time_points = ["Time 1", "Time 2", "Time 3", "Time 4", "Time 5"]
-        hash_values = np.random.rand(len(time_points), len(hash_functions)) * 1000
-        fig_historical = go.Figure()
-        for i, algo in enumerate(hash_functions):
-            fig_historical.add_trace(go.Scatter(x=time_points, y=hash_values[:, i], mode='lines+markers', name=algo))
-        fig_historical.update_layout(xaxis_title='Time', yaxis_title='Hash Values',
-                                     title='Historical Hashing Comparison')
-        st.plotly_chart(fig_historical)
-
-    with c4:
-        st.markdown("Radar Chart")
-        attributes = ['Speed', 'Security', 'Flexibility', 'Collision Resistance']
-        scores = np.random.rand(len(hash_functions), len(attributes))
-        fig_radar = go.Figure()
-        for i, algo in enumerate(hash_functions):
-            fig_radar.add_trace(go.Scatterpolar(r=scores[i], theta=attributes, mode='lines+markers', name=algo))
-        fig_radar.update_layout(title='Comparison of Hash Algorithms', polar=dict(radialaxis=dict(visible=True)),
-                                 showlegend=True)
-        st.plotly_chart(fig_radar)
+        with st.expander("Algorithm Distribution"):
+            fig_pie = go.Figure(data=[go.Pie(labels=hash_functions, values=hash_lengths)])
+            fig_pie.update_layout(title='Algorithm Distribution')
+            st.plotly_chart(fig_pie)
 
     with c5:
-        st.markdown("Hash Collisions")
-        collision_likelihood = np.random.rand(len(hash_functions), len(hash_functions))
-        fig_heatmap = go.Figure(data=go.Heatmap(z=collision_likelihood, x=hash_functions, y=hash_functions))
-        fig_heatmap.update_layout(title='Hash Collision Likelihood')
-        st.plotly_chart(fig_heatmap)
+        with st.expander("Historical Hashing"):
+            time_points = ["Time 1", "Time 2", "Time 3", "Time 4", "Time 5"]
+            hash_values = np.random.rand(len(time_points), len(hash_functions)) * 1000
+            fig_historical = go.Figure()
+            for i, algo in enumerate(hash_functions):
+                fig_historical.add_trace(
+                    go.Scatter(x=time_points, y=hash_values[:, i], mode='lines+markers', name=algo))
+            fig_historical.update_layout(xaxis_title='Time', yaxis_title='Hash Values',
+                                         title='Historical Hashing Comparison')
+            st.plotly_chart(fig_historical)
+
+    with c7:
+        with st.expander("Radar Chart"):
+            attributes = ['Speed', 'Security', 'Flexibility', 'Collision Resistance']
+            scores = np.random.rand(len(hash_functions), len(attributes))
+            fig_radar = go.Figure()
+            for i, algo in enumerate(hash_functions):
+                fig_radar.add_trace(go.Scatterpolar(r=scores[i], theta=attributes, mode='lines+markers', name=algo))
+            fig_radar.update_layout(title='Comparison of Hash Algorithms', polar=dict(radialaxis=dict(visible=True)),
+                                    showlegend=True)
+            st.plotly_chart(fig_radar)
+
+    with c9:
+        with st.expander("Hash Collisions"):
+            collision_likelihood = np.random.rand(len(hash_functions), len(hash_functions))
+            fig_heatmap = go.Figure(data=go.Heatmap(z=collision_likelihood, x=hash_functions, y=hash_functions))
+            fig_heatmap.update_layout(title='Hash Collision Likelihood')
+            st.plotly_chart(fig_heatmap)
 
     st.markdown("#### Hash Digests")
-    for hash_algorithm in hash_functions:
-        simulated_distribution = np.random.randint(5, 25, size=16)
-        digest_distribution_data = simulated_distribution / sum(simulated_distribution) * 100
-        if len(digest_distribution_data) > 0:
-            fig_pie_digest = go.Figure(data=[go.Pie(labels=[f"{i:x}" for i in range(16)], values=digest_distribution_data)])
-            fig_pie_digest.update_layout(title=f"{hash_algorithm} Digest Distribution")
-            st.plotly_chart(fig_pie_digest)
 
     col1, col2 = st.columns(2)
 

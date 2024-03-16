@@ -2,6 +2,7 @@ import streamlit as st
 import hashlib
 import plotly.graph_objects as go
 import numpy as np
+import time
 
 # Install matplotlib using pip
 
@@ -44,9 +45,6 @@ def create_pie_chart(labels, sizes):
 def visualizer(hash_functions, hash_lengths):
 
     st.markdown("## Visualization")
-
-
-
     c1, c2, c3, c4, c5, c6, c7, c8, c9, c10 = st.columns(10)
 
     with c1:
@@ -359,6 +357,15 @@ if Feature == "Hashing Data":
             if input_data:
                 # Generate hash results
                 # Display hash results
+                with st.status("Generating data...",expanded=True) as status:
+                    st.write("Hashing...")
+                    time.sleep(1.5)
+                    st.write("Visualizing...")
+                    time.sleep(2)
+                    st.write("Hash Digest Values...")
+                    time.sleep(1.5)
+                    status.update(label="Completed!!!", state="complete", expanded=False)
+
                 results_for_string(input_data, hash_functions, hash_lengths)
             else:
                 st.error("Please enter data before generating hash.")

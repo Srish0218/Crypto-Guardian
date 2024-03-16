@@ -1,13 +1,16 @@
 import streamlit as st
 import hashlib
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import numpy as np
+
+# Install matplotlib using pip
 
 st.set_page_config(
     page_title="CryptoGuardian",
     page_icon="🛡️",
     layout="wide"
 )
+
 
 def calculate_hash(hash_function, data):
     if hash_function == "SHA-256":
@@ -33,117 +36,89 @@ def calculate_hash(hash_function, data):
 
 
 def create_pie_chart(labels, sizes):
-    fig, ax = plt.subplots()
-    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
-    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    ax.set_title('Algorithm Distribution')
+    fig = go.Figure(data=[go.Pie(labels=labels, values=sizes)])
+    fig.update_layout(title='Algorithm Distribution')
     return fig
-
-
 def visualizer(hash_functions, hash_lengths):
     st.markdown("## Visualization")
 
     c1, c2, c3, c4, c5 = st.columns(5)
 
     with c1:
-        st.markdown("#### Hash Lenghts")
-        fig_lengths, ax_lengths = plt.subplots(figsize=(10, 6))
-        ax_lengths.plot(hash_functions, hash_lengths, marker='o', label='Hash Lengths')
-        ax_lengths.set_ylabel('Hash Length (bits)')
-        ax_lengths.set_title('Hash Algorithm Lengths')
-        ax_lengths.legend()
-        st.pyplot(fig_lengths)
+        st.markdown("#### Hash Lengths")
+        fig_lengths = go.Figure()
+        fig_lengths.add_trace(go.Scatter(x=hash_functions, y=hash_lengths, mode='lines+markers', name='Hash Lengths'))
+        fig_lengths.update_layout(xaxis_title='Hash Function', yaxis_title='Hash Length (bits)',
+                                  title='Hash Algorithm Lengths')
+        st.plotly_chart(fig_lengths)
 
     with c2:
         st.markdown("#### Algorithm Distribution")
-        fig_pie = create_pie_chart(hash_functions, hash_lengths)
-        st.pyplot(fig_pie)
+        fig_pie = go.Figure(data=[go.Pie(labels=hash_functions, values=hash_lengths)])
+        fig_pie.update_layout(title='Algorithm Distribution')
+        st.plotly_chart(fig_pie)
 
     with c3:
         st.markdown("Historical Hashing")
         time_points = ["Time 1", "Time 2", "Time 3", "Time 4", "Time 5"]
-        hash_values = np.random.rand(len(time_points),
-                                     len(hash_functions)) * 1000
-        fig_historical, ax_historical = plt.subplots(figsize=(10, 6))
+        hash_values = np.random.rand(len(time_points), len(hash_functions)) * 1000
+        fig_historical = go.Figure()
         for i, algo in enumerate(hash_functions):
-            ax_historical.plot(time_points, hash_values[:, i], marker='o', label=algo)
-
-        ax_historical.set_ylabel('Hash Values')
-        ax_historical.set_title('Historical Hashing Comparison')
-        ax_historical.legend()
-
-        # Display the line chart for historical hashing using Streamlit
-        st.pyplot(fig_historical)
+            fig_historical.add_trace(go.Scatter(x=time_points, y=hash_values[:, i], mode='lines+markers', name=algo))
+        fig_historical.update_layout(xaxis_title='Time', yaxis_title='Hash Values',
+                                     title='Historical Hashing Comparison')
+        st.plotly_chart(fig_historical)
 
     with c4:
         st.markdown("Radar Chart")
-        # Placeholder data for illustration
         attributes = ['Speed', 'Security', 'Flexibility', 'Collision Resistance']
-        hash_functions = ["SHA-256", "SHA-384", "SHA-224", "SHA-512", "SHA-1", "MD5", "SHA3-256", "SHA3-512",
-                          "BLAKE2b", "BLAKE2s"]
-
-        # Generate random scores for each algorithm and attribute
         scores = np.random.rand(len(hash_functions), len(attributes))
-
-        # Radar chart for algorithm comparison
-        fig_radar, ax_radar = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+        fig_radar = go.Figure()
         for i, algo in enumerate(hash_functions):
-            ax_radar.plot(np.linspace(0, 2 * np.pi, len(attributes), endpoint=False), scores[i], label=algo)
-        ax_radar.fill(np.linspace(0, 2 * np.pi, len(attributes), endpoint=False), scores[0], alpha=0.25)
-
-        # Customize chart appearance and labels
-        ax_radar.set_xticks(np.linspace(0, 2 * np.pi, len(attributes), endpoint=False))
-        ax_radar.set_xticklabels(attributes)
-        ax_radar.set_title('Comparison of Hash Algorithms')
-        ax_radar.legend()
-
-        # Display the radar chart for algorithm comparison using Streamlit
-        st.pyplot(fig_radar)
+            fig_radar.add_trace(go.Scatterpolar(r=scores[i], theta=attributes, mode='lines+markers', name=algo))
+        fig_radar.update_layout(title='Comparison of Hash Algorithms', polar=dict(radialaxis=dict(visible=True)),
+                                 showlegend=True)
+        st.plotly_chart(fig_radar)
 
     with c5:
         st.markdown("Hash Collisions")
-        # Generate random collision likelihood scores for each algorithm
         collision_likelihood = np.random.rand(len(hash_functions), len(hash_functions))
-
-        # Heatmap for collision likelihood
-        fig_heatmap, ax_heatmap = plt.subplots(figsize=(10, 8))
-        heatmap = ax_heatmap.imshow(collision_likelihood, cmap='viridis')
-
-        # Customize chart appearance and labels
-        ax_heatmap.set_xticks(np.arange(len(hash_functions)))
-        ax_heatmap.set_yticks(np.arange(len(hash_functions)))
-        ax_heatmap.set_xticklabels(hash_functions)
-        ax_heatmap.set_yticklabels(hash_functions)
-        plt.setp(ax_heatmap.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
-        ax_heatmap.set_title('Hash Collision Likelihood')
-        fig_heatmap.colorbar(heatmap)
-
-        # Display the heatmap for collision likelihood using Streamlit
-        st.pyplot(fig_heatmap)
+        fig_heatmap = go.Figure(data=go.Heatmap(z=collision_likelihood, x=hash_functions, y=hash_functions))
+        fig_heatmap.update_layout(title='Hash Collision Likelihood')
+        st.plotly_chart(fig_heatmap)
 
     st.markdown("#### Hash Digests")
-    digest_distribution_data = {}
     for hash_algorithm in hash_functions:
         simulated_distribution = np.random.randint(5, 25, size=16)
-        digest_distribution_data[hash_algorithm] = simulated_distribution / sum(simulated_distribution) * 100
-    for hash_algorithm in hash_functions:
-        digest_distribution = digest_distribution_data.get(hash_algorithm, [])
-        if len(digest_distribution) == 0:
-            continue
-        fig, ax = plt.subplots()
-        ax.pie(digest_distribution, labels=[f"{i:x}" for i in range(16)], autopct='%1.1f%%', startangle=90,
-               colors=plt.cm.tab20c.colors)
+        digest_distribution_data = simulated_distribution / sum(simulated_distribution) * 100
+        if len(digest_distribution_data) > 0:
+            fig_pie_digest = go.Figure(data=[go.Pie(labels=[f"{i:x}" for i in range(16)], values=digest_distribution_data)])
+            fig_pie_digest.update_layout(title=f"{hash_algorithm} Digest Distribution")
+            st.plotly_chart(fig_pie_digest)
+
     col1, col2 = st.columns(2)
+
     with col1:
         for algo in hash_functions[5:]:
             with st.expander(algo):
-                ax.set_title(f"{hash_algorithm} Digest Distribution")
-                st.pyplot(fig)
+                simulated_distribution = np.random.randint(5, 25, size=16)
+                digest_distribution_data = simulated_distribution / sum(simulated_distribution) * 100
+                if len(digest_distribution_data) > 0:
+                    fig_pie_digest = go.Figure(
+                        data=[go.Pie(labels=[f"{i:x}" for i in range(16)], values=digest_distribution_data)])
+                    fig_pie_digest.update_layout(title=f"{algo} Digest Distribution")
+                    st.plotly_chart(fig_pie_digest)
+
     with col2:
         for algo in hash_functions[:5]:
             with st.expander(algo):
-                ax.set_title(f"{hash_algorithm} Digest Distribution")
-                st.pyplot(fig)
+                simulated_distribution = np.random.randint(5, 25, size=16)
+                digest_distribution_data = simulated_distribution / sum(simulated_distribution) * 100
+                if len(digest_distribution_data) > 0:
+                    fig_pie_digest = go.Figure(
+                        data=[go.Pie(labels=[f"{i:x}" for i in range(16)], values=digest_distribution_data)])
+                    fig_pie_digest.update_layout(title=f"{algo} Digest Distribution")
+                    st.plotly_chart(fig_pie_digest)
 
 
 def results_for_uploading_file(input_data, hash_functions, hash_lengths):

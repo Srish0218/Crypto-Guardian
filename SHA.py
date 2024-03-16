@@ -1,16 +1,13 @@
-import time
 import streamlit as st
 import hashlib
 import matplotlib.pyplot as plt
 import numpy as np
-import base64
 
 st.set_page_config(
     page_title="CryptoGuardian",
     page_icon="🛡️",
     layout="wide"
 )
-
 
 def calculate_hash(hash_function, data):
     if hash_function == "SHA-256":
